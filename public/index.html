@@ -1,0 +1,64 @@
+  
+<div ng-controller="taskController">
+  <div class="row text-center">
+
+    <div class="col-sm-6">
+      <h1>Task Manager</h1>
+    </div>
+    <div class="col-sm-6">
+      <!-- <button class="button button5">+</button> -->
+      <i ng-click="modalOpenAddTask()" class="fa fa-plus-circle fa-5x pad_t_10" aria-hidden="true"></i>
+
+    </div>
+  </div>
+  <div class="row">
+    
+    <div class="col-sm-12 text-center">
+      <h3>Column 2</h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+    </div>
+    
+  </div>
+
+
+
+  <ul>
+    <li ng-repeat="phone in phones">
+      <span>{{phone.name}}</span>
+      <p>{{phone.snippet}}</p>
+    </li>
+  </ul>
+</div>
+
+
+<script type="text/ng-template" id="taskAdd.html">
+    <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add New Task</h3>
+    </div>
+    <div class="modal-body" id="modal-body">
+        <!-- <ul>
+            <li ng-repeat="item in $ctrl.items">
+                <a href="#" ng-click="$event.preventDefault(); $ctrl.selected.item = item">{{ item }}</a>
+            </li>
+        </ul>
+        Selected: <b>{{ $ctrl.selected.item }}</b> -->
+
+        <input type="text" class="form-control" id="title" placeholder="Task Title">
+
+        <textarea class="form-control" rows="5" id="description"></textarea>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" type="button" ng-click="$ctrl.ok()">OK</button>
+        <button class="btn btn-warning" type="button" ng-click="$ctrl.cancel()">Cancel</button>
+    </div>
+</script>
+
+
+  
+  <script src="task.controller.js"></script>
+  <!-- <script src="taskadd.controller.js"></script> -->
+
+</body>
+</html>
+
