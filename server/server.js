@@ -19,6 +19,7 @@
 
 	app.use(express.static('./public')); 		// set the static files location /public/img will be /img for users
 	app.use(morgan('dev')); // log every request to the console
+	app.use(bodyParser.json({limit: '10mb'}));
 
 	app.use('/', routes);
 

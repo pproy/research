@@ -3,18 +3,23 @@
   'use strict';
   var express = require('express');
   var router = express.Router();
+
+  const taskCtrl = require('./task.ctrl');
   //var mongojs = require('mongoose'); 
   //var db = mongojs('mongodb://localhost/meantodo', ['todos']);
 
+  //Get
+  router.get('/', taskCtrl.taskList); // get list;
+
   /* GET home page. */
-  router.get('/', function(req, res) {
+  /*router.get('/', function(req, res) {
     res.render('index');
   });
 
 
   router.get('/task', function(req, res) {
     res.send();
-  });
+  });*/
 
   /*router.get('/api/todos', function(req, res) {
     db.todos.find(function(err, data) {
