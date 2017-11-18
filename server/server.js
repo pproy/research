@@ -9,6 +9,13 @@
 	var bodyParser = require('body-parser');
 	var routes = require('./routes/index');
 
+	var db = mongoose.connect('mongodb://localhost/todo', function(err){
+		if(err)
+			console.log(err)
+		else
+			console.log('mongo connected successfully')
+	});
+
 	var app = express(); 						// create app 
 
 	app.set('port', port);

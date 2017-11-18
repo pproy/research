@@ -8,21 +8,18 @@ const taskModel = require('./task.model');
 
 const addTask = function(req, res) {
 
+    //console.log(req)
+
     let response = {
         'jsonrpc': '2.0'
     };
 
-    let res_post = req.body.params;
-
-    /*req.body.params.password = crypto.createHmac("sha1", env.secret_key).update(req.body.params.password).digest('hex');
-    req.body.params.active = (req.body.params.status) ? "true" : "false";
-    req.body.params.created_at = objHelper.now();
-    req.body.params.updated_at = objHelper.now();
-    let res_post = objHelper.reqParamIntersec(req.body.params, ['restaurant_name', 'contact_name', 'email', 'password', 'country_code', 'phone', 'address', 'city', 'state', 'zip_code',
-        'active', 'created_at', 'updated_at']);*/
+    let req_post = req.body;
 
     let addTaskModel = function (callback) {
-        taskModel.addTask(res_post, callback);
+
+        console.log('zzzz',req_post)
+        taskModel.addTask(req_post, callback);
     };
 
     async.waterfall([addTaskModel], function (err, result) {
@@ -36,7 +33,7 @@ const addTask = function(req, res) {
             }
         } catch (e) {
             console.log(e);
-            response.error = errorCodes['-32000'];
+            response.error = 'Not found';
         }
         //console.log(response);
         res.send(response);
@@ -421,7 +418,8 @@ const sendPushToRestaurant = function(req, res){
 };
 
 module.exports = {
-    addBusinessUser,
+    addTask
+    /*,
     updateBusinessUser,
     businessUserCount,
     businessUserList,
@@ -431,5 +429,5 @@ module.exports = {
     businessUserAutoComplete,
     deleteBusinessUserRestaurant,
     addBusinessUserRestaurant,
-    sendPushToRestaurant
+    sendPushToRestaurant*/
 };
