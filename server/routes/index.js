@@ -1,17 +1,20 @@
 (function() {
 
   'use strict';
-  var express = require('express');
-  var router = express.Router();
+  const express = require('express');
+  const router = express.Router();
 
-  const taskCtrl = require('./task.ctrl');
-  
-  //var mongojs = require('mongoose'); 
-  //var db = mongojs('mongodb://localhost/meantodo', ['todos']);
+  const taskCtrl = require('./task.ctrl'); 
+ 
 
-  //Get
-  //router.get('/', taskCtrl.listTask); // get list;
-  router.post('/add-task', taskCtrl.addTask); // get list;
+  //GET
+  router.get('/list-task', taskCtrl.listTask); // get list;
+
+  //POST
+  router.post('/add-task', taskCtrl.addTask); // add task;
+  router.post('/update-task', taskCtrl.updateTask); // update task;
+  router.post('/task-details', taskCtrl.getTaskDetails); // get details;
+  router.post('/delete-task', taskCtrl.deleteTask); // get details;
 
   /* GET home page. */
   /*router.get('/', function(req, res) {

@@ -1,14 +1,40 @@
 'use strict';
 
 const async = require("async");
-//const uscore = require('underscore');
+
 //Load model
 const taskModel = require('./task.model');
 
 
-const addTask = function(req, res) {
+const listTask = function(req, res) {
+    
+    let response = {
+        "jsonrpc": '2.0'
+    };
+    let fetchList = function (callback) {
+        
+        taskModel.getTaskList(callback);
+    };
 
-    //console.log(req)
+    async.series([fetchList], function (err, result) {
+        try {
+            //Final Result After Executing Tasks
+            if (err !== null) {
+                response.error = err;
+            } else {
+                response.result = result;
+            }
+        } catch (e) {
+            //Log(e);
+            response.error = 'Sorry, unable to fetch list.';
+        }
+        res.send(response);
+    });
+}
+;
+
+
+const addTask = function(req, res) {
 
     let response = {
         'jsonrpc': '2.0'
@@ -17,8 +43,7 @@ const addTask = function(req, res) {
     let req_post = req.body;
 
     let addTaskModel = function (callback) {
-
-        console.log('zzzz',req_post)
+        //console.log('zzzz',req_post)
         taskModel.addTask(req_post, callback);
     };
 
@@ -33,7 +58,7 @@ const addTask = function(req, res) {
             }
         } catch (e) {
             console.log(e);
-            response.error = 'Not found';
+            response.error = 'Sorry, unable to add task.';
         }
         //console.log(response);
         res.send(response);
@@ -42,31 +67,23 @@ const addTask = function(req, res) {
 ;
 
 
-const updateBusinessUser = function(req, res) {
+const updateTask = function(req, res) {
 
     let response = {
         'jsonrpc': '2.0'
     };
 
+    let req_post = req.body;
+    /*let id = req_post.id;
+    delete req_post.id;*/
+    //req_post.status = (req_post.status) ? "true" : "false";
+    //req_post['due_date'] = Date.now;
 
-    let user_id = req.body.params.id;
-
-    if (!!req.body.params.password && req.body.params.password !== undefined) {
-        req.body.params.password = crypto.createHmac("sha1", env.secret_key).update(req.body.params.password).digest('hex');
-    } else {
-        delete req.body.params.password;
-    }
-    req.body.params.active = (req.body.params.status) ? "true" : "false";
-    req.body.params.updated_at = objHelper.now();
-
-    let res_post = objHelper.reqParamIntersec(req.body.params, ['restaurant_name', 'contact_name', 'email', 'password', 'country_code', 'phone', 'address', 'city', 'state', 'zip_code',
-        'active', 'updated_at']);
-
-    let updateBusinessUserRecord = function (callback) {
-        businessUserModel.updateBusinessUser(user_id, res_post, callback);
+    let updateTaskModel = function (callback) {
+        taskModel.updateTask(req_post, callback);
     };
 
-    async.waterfall([updateBusinessUserRecord], function (err, result) {
+    async.waterfall([updateTaskModel], function (err, result) {
 
         try {
             if (err) {
@@ -77,7 +94,8 @@ const updateBusinessUser = function(req, res) {
             }
         } catch (e) {
             console.log(e);
-            response.error = errorCodes['-32000'];
+            //response.error = errorCodes['-32000'];
+            response.error = 'Sorry, something went wrong.';
         }
         //console.log(response);
         res.send(response);
@@ -85,115 +103,29 @@ const updateBusinessUser = function(req, res) {
 }
 ;
 
-const businessUserCount = function(req, res) {
 
-    let response = {
-        'jsonrpc': '2.0',
-        'method': 'count'
-    };
-    let searchQ = req.query.q || '';
-    let fetchList = function(callback) {
-        // calling model for get data
-        businessUserModel.businessUserCount(searchQ, callback);
-    };
-
-    async.series([fetchList], function(err, result) {
-        try {
-            //Final Result After Executing Tasks
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = {
-                    numPerPage: env.pagination.numPerPage,
-                    count: result[0]
-                };
-            }
-        } catch (e) {
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-};
-
-const businessUserList = function(req, res) {
-    let response = {
-        "jsonrpc": '2.0'
-    };
-    let fetchList = function (callback) {
-        let offset = req.query.p || 1;
-        offset = (parseInt(offset) - 1) * env.pagination.numPerPage;
-        let searchQ = req.query.q || null;
-        // let state = req.query.ms || false;
-        // let marketOffice = req.query.mo || false;
-        // calling model for get data
-        businessUserModel.getList(searchQ, offset, env.pagination.numPerPage, callback);
-    };
-
-    async.series([fetchList], function (err, result) {
-        try {
-            //Final Result After Executing Tasks
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-}
-;
-
-
-const businessUserAutoComplete = function(req, res) {    
-    let response = {
-        "jsonrpc": '2.0'
-    };
-    let fetchList = function (callback) {
-        businessUserModel.businessUserAutoComplete(callback);
-    };
-
-    async.series([fetchList], function (err, result) {
-        try {
-            //Final Result After Executing Tasks
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-}
-;
-
-
-//# getting customer record by id from customer table by model.
-const businessUserInfo = function(req, res) {
+const getTaskDetails = function(req, res) {
     let response = {
         'jsonrpc': '2.0'
     };
-    let id = req.params.id || null;
+
+    let req_post = req.body;
+    let id = req_post.id || null;
     let checkRequest = function (callback) {
         try {
             if (!id || id === null) {
-                callback(errorCodes['-32014'], null);
+                callback('Id not found.');
             } else {
-                callback();
+                callback(null);
             }
         } catch (e) {
             //Log(e);
-            callback(errorCodes['-32000'], null);
+            callback('Sorry, something went wrong.');
         }
     };
 
     let getInfo = function (callback) {
-        businessUserModel.businessUserInfo(id, callback);
+        taskModel.getTaskDetails(id, callback);
     };
 
     async.waterfall([checkRequest, getInfo], function (err, result) {
@@ -205,180 +137,42 @@ const businessUserInfo = function(req, res) {
             }
         } catch (e) {
             //Log(e);
-            response.error = errorCodes['-32000'];
+            //response.error = errorCodes['-32000'];
+            response.error = 'Sorry, something went wrong.';
         }
         res.send(response);
     });
 }
 ;
 
-
-//# getting customer record by id from customer table by model.
-const getBusinessUserRestaurants = function(req, res) { 
+const deleteTask = function(req, res) {
     let response = {
         'jsonrpc': '2.0'
     };
-    let business_user_id = req.params.id || null;
+    let req_post = req.body;
+    let id = req_post.id || null;
+
     let checkRequest = function (callback) {
-        try {
-            if (!business_user_id || business_user_id === null) {
-                callback(errorCodes['-32014'], null);
-            } else {
-                callback();
-            }
-        } catch (e) {
-            //Log(e);
-            callback(errorCodes['-32000'], null);
-        }
-    };
-
-    let getRestaurants = function (callback) {
-        businessUserModel.getBusinessUserRestaurants(business_user_id, callback);
-    };
-
-    let getRestaurantsDeviceInfo = function (data, callback) {
-        businessUserModel.getRestaurantsDeviceInfo(data, callback);
-    };
-
-    async.waterfall([checkRequest, getRestaurants, getRestaurantsDeviceInfo], function (err, result) {
-        try {
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-};
-
-
-const deleteBusinessUser = function(req, res) {
-    let response = {
-        'jsonrpc': '2.0'
-    };
-    let id = req.params.id || null;
-    let checkRequest = function (callback) {
-
         try {
             if (!id || id === null) {
-                callback(errorCodes['-32014'], null);
+                //callback(errorCodes['-32014'], null);
+                callback('Id not found.');
             } else {
-                callback();
+                callback(null);
             }
         } catch (e) {
             //Log(e);
-            callback(errorCodes['-32000'], null);
+            //callback(errorCodes['-32000'], null);
+            callback('Sorry, something went wrong.');
         }
     };
 
 
-    let deleteBURestaurant = function (callback) {
-        businessUserModel.deleteBusinessUserRestaurant(id, callback);
-    };
-
-    let deleteBU = function (id, callback) {
-        businessUserModel.deleteBusinessUser(id, callback);
-    };
-
-    async.waterfall([checkRequest, deleteBURestaurant, deleteBU], function (err, result) {
-        try {
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-}
-;
-
-//Called from restaurant edit page
-const deleteBusinessUserRestaurant = function(req, res) {
-    
-    let response = {
-        'jsonrpc': '2.0'
-    };
-    
-    let business_user_id = req.body.params.business_user_id;
-    let restaurant_id = req.body.params.restaurant_id;
-    
-    let checkRequest = function (callback) {
-
-        try {
-            if (!business_user_id || business_user_id === null || !restaurant_id || restaurant_id === null) {
-                callback(errorCodes['-32014'], null);
-            } else {
-                callback();
-            }
-        } catch (e) {
-            //Log(e);
-            callback(errorCodes['-32000'], null);
-        }
-    };
-
-
-    let deleteBURestaurant = function (callback) {
-        businessUserModel.deleteABuRestaurantRecord(business_user_id, restaurant_id, callback);
-    };
-
-    async.waterfall([checkRequest, deleteBURestaurant], function (err, result) {
-        try {
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-}
-;
-
-
-//Called from restaurant edit page
-const addBusinessUserRestaurant = function(req, res) {
-    
-    let response = {
-        'jsonrpc': '2.0'
-    };
-    
-    let business_user_id = req.body.params.business_user_id;
-    let restaurant_id = req.body.params.restaurant_id;
-    
-    let checkRequest = function (callback) {
-
-        try {
-            if (!business_user_id || business_user_id === null || !restaurant_id || restaurant_id === null) {
-                callback(errorCodes['-32014'], null);
-            } else {
-                callback();
-            }
-        } catch (e) {
-            //Log(e);
-            callback(errorCodes['-32000'], null);
-        }
+    let deleteTaskId = function (callback) {
+        taskModel.deleteTask(id, callback);
     };    
-    
-    req.body.params.created_at = objHelper.now();
-    
-    let res_post = objHelper.reqParamIntersec(req.body.params, ['business_user_id', 'restaurant_id', 'created_at']);
 
-    let addBURestaurant = function (callback) {
-        businessUserModel.addABuRestaurantRecord(res_post, callback);
-    };
-
-    async.waterfall([checkRequest, addBURestaurant], function (err, result) {
+    async.waterfall([checkRequest, deleteTaskId], function (err, result) {
         try {
             if (err !== null) {
                 response.error = err;
@@ -391,43 +185,14 @@ const addBusinessUserRestaurant = function(req, res) {
         }
         res.send(response);
     });
-};
+}
+;
 
-const sendPushToRestaurant = function(req, res){
-    let response = { "jsonrpc": '2.0' },
-        notify_content = !!req.body.params && !!req.body.params.notify_content ? req.body.params.notify_content : null;
-
-    let notifyRes = function(callback) {
-        businessUserModel.notifyRes(req.body.params, callback);
-    };
-
-    async.waterfall([notifyRes], function(err, result) {
-        try {
-            //Final Result After Executing Tasks
-            if (err !== null) {
-                response.error = err;
-            } else {
-                response.result = result;
-            }
-        } catch (e) {
-            //Log(e);
-            response.error = errorCodes['-32000'];
-        }
-        res.send(response);
-    });
-};
 
 module.exports = {
-    addTask
-    /*,
-    updateBusinessUser,
-    businessUserCount,
-    businessUserList,
-    businessUserInfo,
-    getBusinessUserRestaurants,
-    deleteBusinessUser,
-    businessUserAutoComplete,
-    deleteBusinessUserRestaurant,
-    addBusinessUserRestaurant,
-    sendPushToRestaurant*/
+    addTask,
+    listTask,
+    updateTask,
+    getTaskDetails,
+    deleteTask    
 };
